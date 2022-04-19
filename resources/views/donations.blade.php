@@ -72,7 +72,7 @@
                                     return meta.row + 1;
                                 },
                             },
-                            {   data: 'name' },
+                            {   data: data => data.first_name + ' ' + data.last_name },
                             {   data: 'email' },
                             {   
                                 data: data => data.type == 'single' ? 'One time Donation' : 'Montly Donation'
