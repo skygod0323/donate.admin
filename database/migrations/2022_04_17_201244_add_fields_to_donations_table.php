@@ -16,7 +16,7 @@ class AddFieldsToDonationsTable extends Migration
         Schema::table('donations', function (Blueprint $table) {
             //
             $table->string('type');
-            $table->integer('amount');
+            $table->double('amount');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('gender')->nullable();

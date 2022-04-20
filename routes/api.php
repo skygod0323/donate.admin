@@ -22,7 +22,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // });
 
 Route::post('/donation/create', 'DonationController@create')->name('create_donation');
-Route::get('/donation/cryptoDonation', 'DonationController@cryptoDonation')->name('cryptoDonation');
+Route::get('/donation/cryptoDonation', 'DonationController@cryptoDonation')->name('crypto_donation');
+Route::get('/donation/summary', 'DonationController@summary')->name('donation_summary');
 
 
 

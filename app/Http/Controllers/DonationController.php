@@ -177,5 +177,12 @@ class DonationController extends Controller
         return response()->json(['success' => true, 'hosted_url' => $hosted_url]);
     }
 
+    public function summary() {
+        $total_amount = Donation::sum('amount');
+        $count = Donation::count();
+
+        return response()->json(['success' => true, 'total_amount' => $total_amount, 'count' => $count]);
+    }
+
     
 }
