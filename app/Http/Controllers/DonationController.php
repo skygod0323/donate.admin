@@ -8,6 +8,9 @@ use App\Entities\Billing;
 use App\Entities\Crypto;
 use CoinbaseCommerce\ApiClient;
 use CoinbaseCommerce\Resources\Charge;
+use App\Mail\Receipt;
+use Illuminate\Support\Facades\Mail;
+
 
 class DonationController extends Controller
 {
@@ -150,6 +153,8 @@ class DonationController extends Controller
 
         $donation->payment_id = $payment_id;
         $donation->save();
+
+        $res = Mail::to($donation->email)->send(new Receipt($donation));
 
         return response()->json(['success' => true]);
     }
