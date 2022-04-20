@@ -32,7 +32,7 @@ class Receipt extends Mailable
     public function build()
     {
         return $this->subject('Donation')
-                    ->view('view.receipt')
+                    ->view('email.receipt')
                     ->with([
                         'donation' => $this->donation
                     ]);
