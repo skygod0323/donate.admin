@@ -10,7 +10,7 @@
 
     <div style="background-color: #ffffff; border: 2px solid #f1f3f4; min-width: 900px; max-width: 900px;">
         <div style="text-align: center; padding: 20px 0px;">
-            <img src="{{env('APP_URL') . '/storage/' . 'logo.png'}}">
+            <img src="{{env('APP_URL') . '/storage/' . 'logo.png'}}" style="width: 100px">
         </div>
         <div style="background-color: black; color: white; text-align: center; padding: 30px 0px;">
             <h1 style="font-size: 40px;">Thank you for donating to Al-Ansar</h1>
@@ -18,7 +18,7 @@
         <div>
             <div style="padding: 30px 20px;">
                 <div style="font-size: 25px; color: #636363;">
-                    <p>Assalamu' alaikum wa rahmatullahi wa barakatuh <span style="background-color: yellow;">{{$donation['first_name']}} {{$collection['last_name']}},</span></p>
+                    <p>Assalamu' alaikum wa rahmatullahi wa barakatuh <span style="background-color: yellow;">{{$donation['first_name']}} {{$donation['last_name']}},</span></p>
                     <p>We have finished processing your donation.</p>
                     <p>Thank you for your generous donation. We pray Allah swt accepts your kind generosity. Your donations will help repay the outstanding Qardh Hasan and allow completion of the centre with the remaining finishing touches as well as allowing
                         us to focus on delivering more and better community services and activities in the future insha'Allah.</p>
@@ -28,7 +28,7 @@
                 </div>
 
                 <div style="margin-top: 40px;">
-                    <span style="font-size: 30px; background-color: yellow; font-weight: bold;">[Donation #{{$donation['id']}}] (14th April 2022)</span>
+                    <span style="font-size: 30px; background-color: yellow; font-weight: bold;">[Donation #{{$donation['id']}}] ({{date('jS F Y')}})</span>
                 </div>
 
                 <div style="margin-top: 20px;">
@@ -49,7 +49,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="font-weight: bold; border: 1px solid #f1f3f4; padding: 20px;">Pyament Method:</td>
+                                <td colspan="2" style="font-weight: bold; border: 1px solid #f1f3f4; padding: 20px;">Payment Method:</td>
                                 <td style="border: 1px solid #f1f3f4; padding: 20px;">
                                     <span style="background-color: yellow;">Credit/Debit Card</span>
                                 </td>
@@ -86,23 +86,39 @@
 
                 <div style="margin-top: 50px; padding: 30px 0px; text-align: center;">
                     <div style="display: inline-block; padding-right: 30px;">
-                        <a href="https://www.facebook.com/MasjidAnsarUK"><img src="" height="50px"></a>
+                        <a href="https://www.facebook.com/MasjidAnsarUK">
+                            <img src="{{env('APP_URL') . '/storage/' . 'facebook_logo.png'}}" height="50px">
+                        </a>
                     </div>
 
                     <div style="display: inline-block; padding-right: 30px;">
-                        <a href=""><img src="" height="50px"></a>
+                        <a href="https://www.instagram.com/alansariec">
+                            <img src="{{env('APP_URL') . '/storage/' . 'instagram_logo.png'}}" height="50px">
+                        </a>
                     </div>
 
                     <div style="display: inline-block; padding-right: 30px;">
-                        <a href=""><img src="" height="50px"></a>
+                        <a href="https://twitter.com/MasjidAnsarUK">
+                            <img src="{{env('APP_URL') . '/storage/' . 'twitter_logo.png'}}" height="50px">
+                        </a>
                     </div>
 
                     <div style="display: inline-block; padding-right: 30px;">
-                        <a href=""><img src="" height="50px"></a>
+                        <a href="https://www.youtube.com/channel/UCRNw5SlAsT9FLSctNNebzdA/videos">
+                            <img src="{{env('APP_URL') . '/storage/' . 'youtube_logo.png'}}" height="50px">
+                        </a>
                     </div>
 
                     <div style="display: inline-block; padding-right: 30px;">
-                        <a href=""><img src="" height="50px"></a>
+                        <a href="https://t.me/alansariec">
+                            <img src="{{env('APP_URL') . '/storage/' . 'telegram_logo.png'}}" height="50px">
+                        </a>
+                    </div>
+
+                    <div style="display: inline-block; padding-right: 30px;">
+                        <a href="https://play.google.com/store/apps/details?id=com.masjidbox.aalansariec6053ddfd3f740b0015498eaa">
+                            <img src="{{env('APP_URL') . '/storage/' . 'googleplay_logo.png'}}" height="50px">
+                        </a>
                     </div>
                 </div>
 

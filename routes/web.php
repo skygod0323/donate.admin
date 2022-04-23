@@ -19,7 +19,5 @@ Auth::routes();
 
 Route::get('/users', 'UsersController@index')->name('users');
 Route::get('/donations', 'DonationController@index')->name('donations');
-Route::get('/transactions', 'TransactionController@index')->name('transactions');
-Route::get('/punch_chains', 'TransactionController@punch_chains')->name('punch_chains');
-Route::get('/settings', 'SettingController@index')->name('settings');
-Route::post('/settings', 'SettingController@update')->name('update_settings');
+Route::get('/donor_wall', 'DonorWallController@index')->name('donor_wall');
+Route::post('/donor_wall/upload', 'DonorWallController@upload')->name('donor_wall_upload');

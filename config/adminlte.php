@@ -138,11 +138,11 @@ return [
             'url'  => 'donations',
             'icon' => 'fas fa-fw fa-exchange-alt',
         ],
-        // [
-        //     'text' => 'Punch Chain',
-        //     'url'  => 'punch_chains',
-        //     'icon' => 'fas fa-fw fa-shopping-bag',
-        // ],
+        [
+            'text' => 'Donor Wall',
+            'url'  => 'donor_wall',
+            'icon' => 'fas fa-fw fa-shopping-bag',
+        ],
         // [
         //     'text' => 'Settings',
         //     'url'  => 'settings',
