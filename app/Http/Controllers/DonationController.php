@@ -26,9 +26,212 @@ class DonationController extends Controller
     }
 
     public function index() {
-        $donations = Donation::with('billing')->orderBy('created_at', 'desc')->get();
+        $donations = Donation::with('billing')->where('status', 'complete')->orderBy('created_at', 'desc')->get();
         return view('donations', compact('donations'));
     }
+
+    public function payment_intent(Request $request) {
+
+        $input = $request->input();
+
+
+        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY'));
+
+        $intent = $stripe->paymentIntents->create(
+            [
+                'amount' => $input['amount'] * 100,
+                'currency' => 'gbp',
+                'automatic_payment_methods' => ['enabled' => true],
+            ]
+        );
+
+
+        $account = $input['account'];
+        $billing_info = $input['billing'];
+
+        $donation = new Donation;
+        $donation->type = $input['donate_type'];
+        $donation->amount = $input['amount'];
+        $donation->first_name = $account['firstName'];
+        $donation->last_name = $account['lastName'];
+        $donation->email = $account['email'];
+        $donation->phone = $account['phone'];
+        $donation->get_mail = $account['getMail'];
+        $donation->get_sms = $account['getSMS'];
+        $donation->donor_wall = $account['donorWall'];
+        $donation->donor_wall_name = $account['donorWallName'];
+        $donation->gift_add = $account['giftAdd'];
+        $donation->status = 'incomplete';
+
+        if ($account['giftAdd']) {
+            /// add billing info
+            $billing = new Billing;
+            $billing->first_name = $account['firstName'];
+            $billing->last_name = $account['lastName'];
+            $billing->company = $billing_info['company'];
+            $billing->house = $billing_info['house'];
+            $billing->apartment = $billing_info['apartment'];
+            $billing->city = $billing_info['city'];
+            $billing->country = $billing_info['country'];
+            $billing->postcode = $billing_info['postcode'];
+            $billing->email = $account['email'];
+            $billing->phone = $account['phone'];
+
+            $billing->save();
+
+            $donation->billing_id = $billing->id;
+        }
+
+        $donation->payment_id = $intent['id'];
+        $donation->save();
+
+        return response()->json(['success' => true, 'intent' => $intent]);
+    }
+
+    public function confirm_payment_intent(Request $request) {
+        $donation = Donation::where('payment_id', $request->input('payment_intent'))->first();
+
+        if ($donation) {
+            $donation->status = 'complete';
+            $donation->save();
+            //$res = Mail::to($donation->email)->send(new Receipt($donation));
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+
+
+    public function subscribe_donation(Request $request) {
+        $stripe = new \Stripe\StripeClient(
+            env('STRIPE_KEY')
+        );
+
+        $input = $request->input();
+
+        $account = $input['account'];
+        $billing_info = $input['billing'];
+
+        //// create customer
+        $cus = $stripe->customers->create([
+            'name' => $account['firstName'] . ' ' . $account['lastName'],
+            'email' => $account['email'],
+            'description' => 'Customer for donation'
+        ]);
+
+        /// create product
+        $prod = $stripe->products->create([
+            'name' => 'Subscription for donation',
+        ]);
+
+        /// create price
+        $price = $stripe->prices->create([
+            'unit_amount' => $input['amount'] * 100,
+            'currency' => 'gbp',
+            'recurring' => ['interval' => 'month'],
+            'product' => $prod['id'],
+        ]);
+
+        /// create subscription
+        $subscription = $stripe->subscriptions->create([
+            'customer' => $cus['id'],
+            'items' => [
+              ['price' => $price['id']],
+            ],
+            'collection_method' => 'send_invoice',
+            'days_until_due' => 4
+        ]);
+
+        $invoice = $stripe->invoices->sendInvoice(
+            $subscription->latest_invoice,
+            []
+        );
+
+        $payment_intent = $stripe->paymentIntents->retrieve(
+            $invoice['payment_intent'],
+            []
+        );
+
+        $payment_id = $invoice['payment_intent'];
+
+        $donation = new Donation;
+        $donation->type = $input['donate_type'];
+        $donation->amount = $input['amount'];
+        $donation->first_name = $account['firstName'];
+        $donation->last_name = $account['lastName'];
+        $donation->email = $account['email'];
+        $donation->phone = $account['phone'];
+        $donation->get_mail = $account['getMail'];
+        $donation->get_sms = $account['getSMS'];
+        $donation->donor_wall = $account['donorWall'];
+        $donation->donor_wall_name = $account['donorWallName'];
+        $donation->gift_add = $account['giftAdd'];
+        $donation->status = 'incomplete';
+
+        if ($account['giftAdd']) {
+            /// add billing info
+            $billing = new Billing;
+            $billing->first_name = $account['firstName'];
+            $billing->last_name = $account['lastName'];
+            $billing->company = $billing_info['company'];
+            $billing->house = $billing_info['house'];
+            $billing->apartment = $billing_info['apartment'];
+            $billing->city = $billing_info['city'];
+            $billing->country = $billing_info['country'];
+            $billing->postcode = $billing_info['postcode'];
+            $billing->email = $account['email'];
+            $billing->phone = $account['phone'];
+
+            $billing->save();
+
+            $donation->billing_id = $billing->id;
+        }
+
+        $donation->payment_id = $payment_id;
+        $donation->save();
+
+        //$res = Mail::to($donation->email)->send(new Receipt($donation));
+
+        return response()->json([
+            'success' => true, 
+            'subscription' => $subscription, 
+            'invoice' => $invoice,
+            'payment_intent' => $payment_intent
+        ]);
+
+    }
+
+    public function cryptoDonation() {
+        error_log('Some message here.');
+        
+        $chargeData = [
+            'name' => 'Donation',
+            'description' => 'AL-AN SAR Donation',
+            'local_price' => [
+                'amount' => '0.01',
+                'currency' => 'GBP'
+            ],
+            'pricing_type' => 'fixed_price'
+        ];
+        $res = Charge::create($chargeData);
+
+        $crypto = new Crypto;
+        $crypto->charge_code = $res['code'];
+        $crypto->status = 'pending';
+        $crypto->save();
+
+        $hosted_url = $res['hosted_url'];
+        return response()->json(['success' => true, 'hosted_url' => $hosted_url]);
+    }
+
+    public function summary() {
+        $total_amount = Donation::sum('amount');
+        $count = Donation::count();
+
+        return response()->json(['success' => true, 'total_amount' => $total_amount, 'count' => $count]);
+    }
+
+
 
     public function create(Request $request) {
 
@@ -111,8 +314,15 @@ class DonationController extends Controller
                 'items' => [
                   ['price' => $price['id']],
                 ],
-                'default_payment_method' => $pm['id']
+                // 'default_payment_method' => $pm['id'],
+                'collection_method' => 'send_invoice',
+                'days_until_due' => 4
             ]);
+
+            $invoice = $stripe->invoices->sendInvoice(
+                $subscription->latest_invoice,
+                []
+            );
 
             $payment_id = $subscription['id'];
         }
@@ -154,39 +364,13 @@ class DonationController extends Controller
         $donation->payment_id = $payment_id;
         $donation->save();
 
-        $res = Mail::to($donation->email)->send(new Receipt($donation));
+        //$res = Mail::to($donation->email)->send(new Receipt($donation));
 
-        return response()->json(['success' => true]);
-    }
-
-    public function cryptoDonation() {
-        error_log('Some message here.');
-        
-        $chargeData = [
-            'name' => 'Donation',
-            'description' => 'AL-AN SAR Donation',
-            'local_price' => [
-                'amount' => '0.01',
-                'currency' => 'GBP'
-            ],
-            'pricing_type' => 'fixed_price'
-        ];
-        $res = Charge::create($chargeData);
-
-        $crypto = new Crypto;
-        $crypto->charge_code = $res['code'];
-        $crypto->status = 'pending';
-        $crypto->save();
-
-        $hosted_url = $res['hosted_url'];
-        return response()->json(['success' => true, 'hosted_url' => $hosted_url]);
-    }
-
-    public function summary() {
-        $total_amount = Donation::sum('amount');
-        $count = Donation::count();
-
-        return response()->json(['success' => true, 'total_amount' => $total_amount, 'count' => $count]);
+        return response()->json([
+                    'success' => true, 
+                    'subscription' => isset($subscription) ? $subscription : null, 
+                    'invoice' => isset($invoice) ? $invoice : null
+                ]);
     }
 
     

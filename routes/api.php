@@ -22,6 +22,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // });
 
 Route::post('/donation/create', 'DonationController@create')->name('create_donation');
+Route::post('/donation/payment_intent', 'DonationController@payment_intent')->name('payment_intent');
+Route::post('/donation/confirm_payment_intent', 'DonationController@confirm_payment_intent')->name('confirm_payment_intent');
+Route::post('/donation/subscribe_donation', 'DonationController@subscribe_donation')->name('subscribe_donation');
 Route::get('/donation/cryptoDonation', 'DonationController@cryptoDonation')->name('crypto_donation');
 Route::get('/donation/summary', 'DonationController@summary')->name('donation_summary');
 Route::get('/donor_wall/donor_wall', 'DonorWallController@donor_wall')->name('donor_wall_get');
